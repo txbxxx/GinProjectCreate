@@ -5,11 +5,11 @@
 2.  `Gorm` ORM框架 https://github.com/jinzhu/gorm
 3.  `MariaDB/Mysql` 数据库
 4.  `Redis` 缓存 https://github.com/redis/redis
-5.  `Jwt` 鉴权 https://github.com/golang-jwt/jwt
+5.  `Jwt` 鉴权 https://github.com/golang-jwt/jwt/v5
 6.  `Logrus` 日志 https://github.com/sirupsen/logrus
 7.  `Gin-cors` 跨域 https://github.com/gin-contrib/cors
 8.  `godotenv` 读取.env文件,方便写配置文件 https://github.com/joho/godotenv 
-9.   `go-redis` redis操作工具 https://github.com/go-redis/redis 
+9.   `go-redis` redis操作工具 https://github.com/go-redis/redis/v8
 
 ## 目录内容设计
 1.  `utils` 工具包，存放连接数据库，`Token`工具等等

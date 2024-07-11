@@ -12,7 +12,9 @@ import (
 	"Go-WebCreate/utils"
 	"fmt"
 	"github.com/joho/godotenv"
+	"github.com/sirupsen/logrus"
 	"os"
+	"strconv"
 )
 
 func Init() {
@@ -26,4 +28,8 @@ func Init() {
 
 	//连接redis
 	utils.RedisUtils(os.Getenv("RDB_ADDR"), os.Getenv("RDB_PWD"), os.Getenv("RDB_DEFAULT_DB"))
+
+	//logrus配置
+	logLevel, _ := strconv.Atoi(os.Getenv("LOG_LEVEL"))
+	logrus.SetLevel(logrus.Level(logLevel))
 }

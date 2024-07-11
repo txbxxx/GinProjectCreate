@@ -9,6 +9,7 @@
 package router
 
 import (
+	"Go-WebCreate/control"
 	"Go-WebCreate/middleware"
 	"github.com/gin-gonic/gin"
 )
@@ -17,6 +18,11 @@ func Router() *gin.Engine {
 	httpServer := gin.Default()
 	//跨域
 	httpServer.Use(middleware.Cors())
+
+	user := httpServer.Group("/user")
+	{
+		user.POST("/login", control.Login)
+	}
 
 	return httpServer
 }
