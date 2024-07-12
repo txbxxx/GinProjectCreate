@@ -32,4 +32,5 @@ func Init() {
 	//logrus配置
 	logLevel, _ := strconv.Atoi(os.Getenv("LOG_LEVEL"))
 	logrus.SetLevel(logrus.Level(logLevel))
+	logrus.SetReportCaller(true)
 }

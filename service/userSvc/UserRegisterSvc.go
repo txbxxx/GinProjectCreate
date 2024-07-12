@@ -10,6 +10,7 @@ package userSvc
 
 import (
 	"Go-WebCreate/model"
+	serializes "Go-WebCreate/serialized"
 	"Go-WebCreate/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -52,7 +53,7 @@ func (service *UserRegisterService) Register() gin.H {
 		Mail:     service.Mail,
 	}
 	//插入数据库
-	errInsert := utils.DB.Model(&model.User{}).Create(&user).Error
+	errInsert := utils.DB.Model(&model.User{}).Create(user).Error
 	if errInsert != nil {
 		return gin.H{
 			"code": -1,
@@ -73,6 +74,7 @@ func (service *UserRegisterService) Register() gin.H {
 		"code": 200,
 		"msg":  "注册成功！！",
 		"data": gin.H{
+			"data":  serializes.UserSerializeSingle(*user),
 			"token": token,
 		},
 	}
