@@ -22,6 +22,7 @@ func Router() *gin.Engine {
 	user := httpServer.Group("/user")
 	{
 		user.POST("/login", control.Login)
+		user.POST("/register", control.Register)
 	}
 
 	return httpServer
