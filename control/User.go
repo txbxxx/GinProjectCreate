@@ -17,7 +17,7 @@ import (
 func Login(c *gin.Context) {
 	var service userSvc.UserLoginService
 	err := c.ShouldBind(&service)
-	if err != nil {
+	if err == nil {
 		login := service.Login()
 		c.JSON(200, login)
 	} else {
@@ -29,7 +29,7 @@ func Login(c *gin.Context) {
 func Register(c *gin.Context) {
 	var service userSvc.UserRegisterService
 	err := c.ShouldBind(&service)
-	if err != nil {
+	if err == nil {
 		register := service.Register()
 		c.JSON(200, register)
 	} else {
