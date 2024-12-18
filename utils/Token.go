@@ -1,6 +1,6 @@
 /**
  * @Author tanchang
- * @Description Token
+ * @Description 鉴权模块
  * @Date 2024/7/11 20:09
  * @File:  Token
  * @Software: GoLand
@@ -16,7 +16,6 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	uuid "github.com/satori/go.uuid"
-
 )
 
 // UserClaims 定义Claims的结构体，作用是存储用户信息
