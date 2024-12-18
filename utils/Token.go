@@ -1,6 +1,6 @@
 /**
  * @Author tanchang
- * @Description //TODO
+ * @Description Token
  * @Date 2024/7/11 20:09
  * @File:  Token
  * @Software: GoLand
@@ -11,10 +11,12 @@ package utils
 import (
 	"crypto/md5"
 	"fmt"
-	"github.com/golang-jwt/jwt/v5"
-	uuid "github.com/satori/go.uuid"
 	"math/rand"
 	"time"
+
+	"github.com/golang-jwt/jwt/v5"
+	uuid "github.com/satori/go.uuid"
+
 )
 
 // UserClaims 定义Claims的结构体，作用是存储用户信息

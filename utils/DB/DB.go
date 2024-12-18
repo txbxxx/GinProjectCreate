@@ -10,13 +10,16 @@ package utils
 
 import (
 	"Go-WebCreate/model"
+	"log"
+	"os"
+	"time"
+
+	"github.com/sirupsen/logrus"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
-	"log"
-	"os"
-	"time"
+
 )
 
 var DB *gorm.DB
@@ -46,15 +49,19 @@ func DBUntil(DBUser, DBPwd, DBAddr, DBName, TablePrefix string) {
 		Logger: newLogger,
 	})
 
+	if err != nil {
+		logrus.Error("数据库连接错误: ",err.Error())
+	}
+
 	sqlDB, err := db.DB()
 
 	// 设置连接池
 	sqlDB.SetMaxIdleConns(10)
 
-	//  设置最大打开连接数
+	//  设置最大打ru'srus
 	sqlDB.SetMaxOpenConns(20)
 	if err != nil {
-		log.Println("数据库连接失败", err.Error())
+		logrus.Println("数据库连接失败: ", err.Error())
 	}
 
 	DB = db
@@ -67,7 +74,7 @@ func DBUntil(DBUser, DBPwd, DBAddr, DBName, TablePrefix string) {
 func CreateTable() {
 	err := DB.AutoMigrate(&model.User{})
 	if err != nil {
-		log.Println("创建表失败", err.Error())
+		logrus.Println("创建表失败", err.Error())
 		return
 	}
 }

@@ -10,8 +10,9 @@ package utils
 
 import (
 	"fmt"
-	"github.com/go-redis/redis/v8"
 	"strconv"
+
+	"github.com/go-redis/redis/v8"
 )
 
 var Cache *redis.Client
@@ -21,7 +22,7 @@ func RedisUtils(RDBAddr, RDBPwd, RDBDefaultDB string) {
 	// 将字符串转换成int
 	RDB, err := strconv.Atoi(RDBDefaultDB)
 	if err != nil {
-		fmt.Println("将string转换成int失败！")
+		fmt.Println("转换地址失败")
 	}
 
 	//连接redis
