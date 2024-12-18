@@ -9,7 +9,6 @@
 package conf
 
 import (
-	"Go-WebCreate/utils"
 	"fmt"
 	"os"
 	"strconv"
@@ -17,6 +16,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
 
+	"Go-WebCreate/utils/DB"
 )
 
 func Init() {
@@ -31,9 +31,9 @@ func Init() {
 	logrus.SetReportCaller(true)
 
 	//连接数据库
-	utils.DBUntil(os.Getenv("DB_USER"), os.Getenv("DB_PWD"), os.Getenv("DB_ADDR"), os.Getenv("DB_NAME"), os.Getenv("TABLE_NAME"))
+	// utils.DBUntil(os.Getenv("DB_USER"), os.Getenv("DB_PWD"), os.Getenv("DB_ADDR"), os.Getenv("DB_NAME"), os.Getenv("TABLE_NAME"))
 
 	//连接redis
-	utils.RedisUtils(os.Getenv("RDB_ADDR"), os.Getenv("RDB_PWD"), os.Getenv("RDB_DEFAULT_DB"))
-
+	db , _ := strconv.Atoi(os.Getenv("REDIS_DB"))
+	DB.NewRedisConn(os.Getenv("REDIS_ADDR"), os.Getenv("REDIS_PWD"),os.Getenv("REDIS_PORT"),db)
 }

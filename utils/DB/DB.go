@@ -1,15 +1,14 @@
 /**
  * @Author tanchang
- * @Description //TODO
+ * @Description Mysql/Mariadb 连接工具类
  * @Date 2024/7/11 15:57
- * @File:  DB
+ * @File:  Db
  * @Software: GoLand
  **/
 
-package utils
+package DB
 
 import (
-	"Go-WebCreate/model"
 	"log"
 	"os"
 	"time"
@@ -20,25 +19,59 @@ import (
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
 
+	"Go-WebCreate/model"
 )
 
-var DB *gorm.DB
+var Db *gorm.DB
 
-// DBUntil 用于连接数据库
-func DBUntil(DBUser, DBPwd, DBAddr, DBName, TablePrefix string) {
+type DbSql struct {
+	DbPwd       string
+	DbHost      string
+	DbUser      string
+	DbPort      string
+	DbName      string
+	TablePrefix string
+}
+
+func NewDbSql(DbUser, DbPwd, DbHost, DbName, DbPort, TablePrefix string) *DbSql {
+	return &DbSql{
+		DbPwd:       DbPwd,
+		DbUser:      DbUser,
+		DbPort:      DbPort,
+		DbName:      DbName,
+		DbHost:      DbHost,
+		TablePrefix: TablePrefix,
+	}
+}
+
+func (t *DbSql) Connect() *gorm.DB {
 	//定义gorm的日志配置
-	newLogger := logger.New(
-		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
-		logger.Config{
-			SlowThreshold:             time.Second, // Slow SQL threshold
-			LogLevel:                  logger.Info, // Log level
-			IgnoreRecordNotFoundError: false,       // Ignore ErrRecordNotFound error for logger
-			ParameterizedQueries:      true,        // Don't include params in the SQL log
-			Colorful:                  false,       // Disable color
-		},
-	)
+	newLogger := newLog()
 
-	databases := DBUser + ":" + DBPwd + "@tcp(" + DBAddr + ")/" + DBName + "?charset=utf8mb4&parseTime=True&loc=Local"
+	databases := t.DbUser + ":" + t.DbPwd + "@tcp(" + t.DbHost + ")/" + t.DbName + "?charset=utf8mb4&parseTime=True&loc=Local"
+	//配置数据库
+	db, err := gorm.Open(mysql.Open(databases), &gorm.Config{
+		SkipDefaultTransaction: false, //禁用事务
+		NamingStrategy: schema.NamingStrategy{ //命名策略
+			TablePrefix:   t.TablePrefix,
+			SingularTable: true, //禁用复数名称
+		},
+		Logger: newLogger,
+	})
+
+	if err != nil {
+		logrus.Error("数据库连接错误: ", err.Error())
+		return nil
+	}
+	return db
+}
+
+// DbUntil 用于连接数据库
+func DbUntil(DbUser, DbPwd, DbAddr, DbName, TablePrefix string) *gorm.DB {
+	//定义gorm的日志配置
+	newLogger := newLog()
+
+	databases := DbUser + ":" + DbPwd + "@tcp(" + DbAddr + ")/" + DbName + "?charset=utf8mb4&parseTime=True&loc=Local"
 	//配置数据库
 	db, err := gorm.Open(mysql.Open(databases), &gorm.Config{
 		SkipDefaultTransaction: false, //禁用事务
@@ -50,29 +83,43 @@ func DBUntil(DBUser, DBPwd, DBAddr, DBName, TablePrefix string) {
 	})
 
 	if err != nil {
-		logrus.Error("数据库连接错误: ",err.Error())
+		logrus.Error("数据库连接错误: ", err.Error())
 	}
 
-	sqlDB, err := db.DB()
+	sqlDb, err := db.DB()
 
 	// 设置连接池
-	sqlDB.SetMaxIdleConns(10)
+	sqlDb.SetMaxIdleConns(10)
 
-	//  设置最大打ru'srus
-	sqlDB.SetMaxOpenConns(20)
+	//  设置最大打开连接数
+	sqlDb.SetMaxOpenConns(20)
 	if err != nil {
 		logrus.Println("数据库连接失败: ", err.Error())
 	}
 
-	DB = db
+	Db = db
 	//创建表
 	CreateTable()
 
 }
 
+func newLog() logger.Interface {
+	newLogger := logger.New(
+		log.New(os.Stdout, "\r\n", log.LstdFlags),
+		logger.Config{
+			SlowThreshold:             time.Second,
+			LogLevel:                  logger.Info,
+			IgnoreRecordNotFoundError: false,
+			ParameterizedQueries:      true,
+			Colorful:                  false,
+		},
+	)
+	return newLogger
+}
+
 // CreateTable 使用自动迁移创建表
 func CreateTable() {
-	err := DB.AutoMigrate(&model.User{})
+	err := Db.AutoMigrate(&model.User{})
 	if err != nil {
 		logrus.Println("创建表失败", err.Error())
 		return
