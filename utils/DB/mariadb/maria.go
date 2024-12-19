@@ -2,11 +2,11 @@
  * @Author tanchang
  * @Description Mysql/Mariadb 连接工具类
  * @Date 2024/7/11 15:57
- * @File:  Db
+ * @File:  maria
  * @Software: GoLand
  **/
 
-package DB
+package sql
 
 import (
 	"fmt"
@@ -32,23 +32,13 @@ type DbSql struct {
 	TablePrefix string
 }
 
-func NewDbSql(DbUser, DbPwd, DbHost, DbName, DbPort, TablePrefix string) *DbSql {
-	return &DbSql{
-		DbPwd:       DbPwd,
-		DbUser:      DbUser,
-		DbPort:      DbPort,
-		DbName:      DbName,
-		DbHost:      DbHost,
-		TablePrefix: TablePrefix,
-	}
-}
 
 func (t *DbSql) Connect() *gorm.DB {
 	//定义gorm的日志配置
 	newLogger := newLog()
-
+	
 	connAddr := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", t.DbUser, t.DbPwd, t.DbHost, t.DbName)
-
+	
 	// databases := t.DbUser + ":" + t.DbPwd + "@tcp(" + t.DbHost + ")/" + t.DbName + "?charset=utf8mb4&parseTime=True&loc=Local"
 	//配置数据库
 	// TODO 定制化
@@ -60,7 +50,7 @@ func (t *DbSql) Connect() *gorm.DB {
 		},
 		Logger: newLogger,
 	})
-
+	
 	if err != nil {
 		logrus.Error("数据库连接错误: ", err.Error())
 		return nil
@@ -68,6 +58,17 @@ func (t *DbSql) Connect() *gorm.DB {
 	return db
 }
 
+
+func NewDbSql(DbUser, DbPwd, DbHost, DbName, DbPort, TablePrefix string) *DbSql {
+	return &DbSql{
+		DbPwd:       DbPwd,
+		DbUser:      DbUser,
+		DbPort:      DbPort,
+		DbName:      DbName,
+		DbHost:      DbHost,
+		TablePrefix: TablePrefix,
+	}
+}
 
 func NewSqlConn(pwd,user,port,dbName,host,prefix string) {
 	sqlConn = NewDbSql(user,pwd,host,dbName,port,prefix).Connect()
@@ -77,10 +78,13 @@ func NewSqlConn(pwd,user,port,dbName,host,prefix string) {
 	}
 	// 设置连接池
 	sqlSet.SetMaxIdleConns(10)
-
+	
 	//  设置最大打开连接数
 	sqlSet.SetMaxOpenConns(20)
 }
+
+
+
 
 
 func GetSqlConn() *gorm.DB {

@@ -2,11 +2,11 @@
  * @Author tanchang
  * @Description Redis 连接工具类
  * @Date 2024/7/11 16:31
- * @File:  Cache
+ * @File:  Redis
  * @Software: GoLand
  **/
 
-package DB
+package Redis
 
 import (
 	"context"
@@ -58,7 +58,12 @@ func NewRedisConn(RDBHost, RDBPwd, RDBPORT string, RDBDefaultDB int)  error{
 
 // 获取redis连接
 func GetRedisConn() *redis.Client {
-	return redisConn
+	if redisConn != nil {
+		logrus.Info("获取redis连接成功")
+		return redisConn
+	}
+	logrus.Error("获取redis连接失败,请先调用NewRedisConn方法创建redis连接")
+	return nil
 }
 
 // 关闭redis连接
