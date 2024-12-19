@@ -1,6 +1,6 @@
 /**
  * @Author tanchang
- * @Description //TODO
+ * @Description 路由
  * @Date 2024/7/11 15:28
  * @File:  route
  * @Software: GoLand
@@ -10,7 +10,6 @@ package router
 
 import (
 	"Go-WebCreate/control"
-	"Go-WebCreate/middleware"
 	"Go-WebCreate/middleware/cors"
 
 	"github.com/gin-gonic/gin"

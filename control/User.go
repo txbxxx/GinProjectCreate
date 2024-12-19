@@ -1,6 +1,6 @@
 /**
  * @Author tanchang
- * @Description //TODO
+ * @Description user contorller
  * @Date 2024/7/11 21:12
  * @File:  User
  * @Software: GoLand
@@ -36,3 +36,4 @@ func Register(c *gin.Context) {
 		c.JSON(200, gin.H{"err": err})
 	}
 }
+

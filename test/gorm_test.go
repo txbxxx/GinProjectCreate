@@ -12,12 +12,12 @@ import (
 	"fmt"
 	"testing"
 
-	"Go-WebCreate/utils"
+	"Go-WebCreate/utils/token"
 	"Go-WebCreate/utils/DB"
 )
 
 func TestCreateUser(t *testing.T) {
-	md5 := utils.GetMd5("123456")
+	md5 := token.GetMd5("123456")
 	println(md5)
 }
 

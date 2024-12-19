@@ -9,7 +9,7 @@
 package auth
 
 import (
-	"Go-WebCreate/utils"
+	tokentool "Go-WebCreate/utils/token"
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,7 +18,7 @@ func authUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		auth := c.GetHeader("token")
 		//解析token返回claims，从claims中获取
-		claims, err := utils.AnalyseToken(auth)
+		claims, err := tokentool.AnalyseToken(auth)
 		if err != nil {
 			c.JSON(200, gin.H{
 				"code": 401,
@@ -45,7 +45,7 @@ func authAdmin() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		auth := c.GetHeader("token")
 		//解析token返回claims，从claims中获取
-		claims, err := utils.AnalyseToken(auth)
+		claims, err := tokentool.AnalyseToken(auth)
 		if err != nil {
 			c.JSON(200, gin.H{
 				"code": 401,

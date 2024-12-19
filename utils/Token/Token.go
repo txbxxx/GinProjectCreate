@@ -6,7 +6,7 @@
  * @Software: GoLand
  **/
 
-package utils
+package token
 
 import (
 	"crypto/md5"
@@ -30,7 +30,7 @@ type UserClaims struct {
 // myKey 密钥
 var myKey = []byte("golangLearn")
 
-// GetMd5 讲密码转换为md值
+// GetMd5 将密码转换为md值
 func GetMd5(s string) string {
 	//直接使用md5的Sum方法
 	return fmt.Sprintf("%x", md5.Sum([]byte(s)))
@@ -54,6 +54,8 @@ func GenerateToken(identity, name string, isAdmin int) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
+	// TODO 生产token存储至Redis
 	return token, err
 }
 
@@ -89,3 +91,9 @@ func GenerateCode() string {
 	}
 	return code
 }
+
+
+// TODO 刷新Token
+
+
+
