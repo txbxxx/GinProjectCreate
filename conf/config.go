@@ -13,10 +13,12 @@ import (
 	"os"
 	"strconv"
 
+	"Go-WebCreate/model"
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
 
-	"Go-WebCreate/utils/DB"
+	sqlConn "Go-WebCreate/utils/DB/mariadb"
+	redisConn "Go-WebCreate/utils/DB/redis"
 )
 
 func Init() {
@@ -32,8 +34,15 @@ func Init() {
 
 	//连接数据库
 	// utils.DBUntil(os.Getenv("DB_USER"), os.Getenv("DB_PWD"), os.Getenv("DB_ADDR"), os.Getenv("DB_NAME"), os.Getenv("TABLE_NAME"))
+	sqlConn.NewSqlConn(os.Getenv("DB_USER"), os.Getenv("DB_PWD"), os.Getenv("DB_HOST"), os.Getenv("DB_PORT"),
+		os.Getenv("DB_NAME"), os.Getenv("TABLE_NAME"))
 
 	//连接redis
-	db , _ := strconv.Atoi(os.Getenv("REDIS_DB"))
-	DB.NewRedisConn(os.Getenv("REDIS_ADDR"), os.Getenv("REDIS_PWD"),os.Getenv("REDIS_PORT"),db)
+	db, _ := strconv.Atoi(os.Getenv("REDIS_DB"))
+	redisConn.NewRedisConn(os.Getenv("REDIS_HOST"),
+		os.Getenv("REDIS_PWD"), os.Getenv("REDIS_PORT"), db)
+
+	// 初始化数据库
+	conn := sqlConn.GetSqlConn()
+	sqlConn.CreateTable(conn, model.User{})
 }

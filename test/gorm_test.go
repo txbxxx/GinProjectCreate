@@ -12,19 +12,13 @@ import (
 	"fmt"
 	"testing"
 
-	"Go-WebCreate/utils/token"
-	"Go-WebCreate/utils/DB"
+	sqlConn "Go-WebCreate/utils/DB/mariadb"
 )
 
-func TestCreateUser(t *testing.T) {
-	md5 := token.GetMd5("123456")
-	println(md5)
-}
-
 func TestRedis(t *testing.T) {
-	if err := DB.NewRedisConn("127.0.0.1", "", "6379", 0); err != nil {
+	if err := sqlConn.NewSqlConn("root", "00000000", "localhost", "3306", "first", "test"); err != nil {
 		t.Error(err)
-		fmt.Println("连接redis失败")
+		fmt.Println("数据库连接失败")
 	}
-	fmt.Println("连接redis成功")
+	fmt.Println("数据库连接成功")
 }

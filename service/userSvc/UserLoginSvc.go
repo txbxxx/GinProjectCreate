@@ -9,10 +9,11 @@
 package userSvc
 
 import (
-	"Go-WebCreate/model"
-	"Go-WebCreate/utils/DB"
-	token "Go-WebCreate/utils/token"
 	"errors"
+
+	"Go-WebCreate/model"
+	DB "Go-WebCreate/utils/DB/mariadb"
+	token "Go-WebCreate/utils/token"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -31,7 +32,7 @@ func (service *UserLoginService) Login() gin.H {
 	var (
 		data model.User
 		cunt int64
-		sql = DB.GetSqlConn()
+		sql  = DB.GetSqlConn()
 	)
 	errData := sql.Model(&model.User{}).Where("name = ? and password = ?", service.Name, token.GetMd5(service.Password)).Count(&cunt).Find(&data).Error
 	if errData != nil {

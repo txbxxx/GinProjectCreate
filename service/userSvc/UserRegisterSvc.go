@@ -11,7 +11,7 @@ package userSvc
 import (
 	"Go-WebCreate/model"
 	serializes "Go-WebCreate/serialized"
-	"Go-WebCreate/utils/DB"
+	DB "Go-WebCreate/utils/DB/mariadb"
 	token "Go-WebCreate/utils/token"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -30,7 +30,7 @@ func (service *UserRegisterService) Register() gin.H {
 	//查找是否存在用户
 	var (
 		userData model.User
-		sql = DB.GetSqlConn()
+		sql      = DB.GetSqlConn()
 	)
 	errSearchUser := sql.Model(&model.User{}).Where("name = ? ", service.Name).Find(&userData).Error
 	if errSearchUser != nil {

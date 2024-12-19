@@ -9,10 +9,11 @@
 package main
 
 import (
+	"os"
+
 	"Go-WebCreate/conf"
 	"Go-WebCreate/router"
 	"github.com/gin-gonic/gin"
-	"os"
 )
 
 func main() {
