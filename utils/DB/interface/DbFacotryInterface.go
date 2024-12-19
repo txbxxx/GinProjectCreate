@@ -6,8 +6,9 @@
  * @Software: vscode
  **/
 
- package DB
+package DB
 
- type DbFacotryInterface[D any] interface {
-   CreateDB() DBInterface[D]
- }
+// TODO 待用
+type DbFacotryInterface[D any] interface {
+	CreateDB() DBInterface[D]
+}

@@ -32,13 +32,12 @@ type DbSql struct {
 	TablePrefix string
 }
 
-
 func (t *DbSql) Connect() *gorm.DB {
 	//定义gorm的日志配置
 	newLogger := newLog()
-	
-	connAddr := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", t.DbUser, t.DbPwd, t.DbHost, t.DbName)
-	
+
+	connAddr := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", t.DbUser, t.DbPwd, t.DbHost, t.DbPort, t.DbName)
+
 	// databases := t.DbUser + ":" + t.DbPwd + "@tcp(" + t.DbHost + ")/" + t.DbName + "?charset=utf8mb4&parseTime=True&loc=Local"
 	//配置数据库
 	// TODO 定制化
@@ -50,14 +49,13 @@ func (t *DbSql) Connect() *gorm.DB {
 		},
 		Logger: newLogger,
 	})
-	
+
 	if err != nil {
 		logrus.Error("数据库连接错误: ", err.Error())
 		return nil
 	}
 	return db
 }
-
 
 func NewDbSql(DbUser, DbPwd, DbHost, DbName, DbPort, TablePrefix string) *DbSql {
 	return &DbSql{
@@ -70,28 +68,26 @@ func NewDbSql(DbUser, DbPwd, DbHost, DbName, DbPort, TablePrefix string) *DbSql 
 	}
 }
 
-func NewSqlConn(pwd,user,port,dbName,host,prefix string) {
-	sqlConn = NewDbSql(user,pwd,host,dbName,port,prefix).Connect()
-	sqlSet,err := sqlConn.DB()
+func NewSqlConn(user, pwd, host, port, dbName, prefix string) error {
+	sqlConn = NewDbSql(user, pwd, host, dbName, port, prefix).Connect()
+	sqlSet, err := sqlConn.DB()
 	if err != nil {
 		logrus.Error("数据库连接错误: ", err.Error())
+		return err
 	}
 	// 设置连接池
 	sqlSet.SetMaxIdleConns(10)
-	
+
 	//  设置最大打开连接数
 	sqlSet.SetMaxOpenConns(20)
+	return nil
 }
-
-
-
-
 
 func GetSqlConn() *gorm.DB {
 	return sqlConn
 }
 
-// 创建gorm日志设置 
+// 创建gorm日志设置
 // TODO 定制化
 func newLog() logger.Interface {
 	newLogger := logger.New(
@@ -108,10 +104,21 @@ func newLog() logger.Interface {
 }
 
 // CreateTable 使用自动迁移创建表
-func CreateTable(Conn *gorm.DB,models ...interface {}) {
-	err := Conn.AutoMigrate(models)
-	if err != nil {
-		logrus.Println("初始化数据库失败", err.Error())
-		return
+func CreateTable(Conn *gorm.DB, models ...interface{}) error {
+	if Conn == nil {
+		logrus.Errorln("数据库连接为空")
+		return fmt.Errorf("数据库连接为空")
 	}
+	for _, model := range models {
+		if model == nil {
+			logrus.Errorln("model为空")
+			return fmt.Errorf("model为空")
+		}
+		logrus.Debugln("创建表: ", model)
+		if err := Conn.AutoMigrate(model);err != nil {
+			logrus.Errorln("创建表失败: ", err.Error())
+			return err
+		}
+	}
+	return nil
 }
