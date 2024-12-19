@@ -11,13 +11,15 @@ package router
 import (
 	"Go-WebCreate/control"
 	"Go-WebCreate/middleware"
+	"Go-WebCreate/middleware/cors"
+
 	"github.com/gin-gonic/gin"
 )
 
 func Router() *gin.Engine {
 	httpServer := gin.Default()
 	//跨域
-	httpServer.Use(middleware.Cors())
+	httpServer.Use(cors.Cors())
 
 	user := httpServer.Group("/user")
 	{

@@ -9,6 +9,7 @@
 package DB
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -18,11 +19,9 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
-
-	"Go-WebCreate/model"
 )
 
-var Db *gorm.DB
+var sqlConn *gorm.DB
 
 type DbSql struct {
 	DbPwd       string
@@ -48,9 +47,12 @@ func (t *DbSql) Connect() *gorm.DB {
 	//定义gorm的日志配置
 	newLogger := newLog()
 
-	databases := t.DbUser + ":" + t.DbPwd + "@tcp(" + t.DbHost + ")/" + t.DbName + "?charset=utf8mb4&parseTime=True&loc=Local"
+	connAddr := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", t.DbUser, t.DbPwd, t.DbHost, t.DbName)
+
+	// databases := t.DbUser + ":" + t.DbPwd + "@tcp(" + t.DbHost + ")/" + t.DbName + "?charset=utf8mb4&parseTime=True&loc=Local"
 	//配置数据库
-	db, err := gorm.Open(mysql.Open(databases), &gorm.Config{
+	// TODO 定制化
+	db, err := gorm.Open(mysql.Open(connAddr), &gorm.Config{
 		SkipDefaultTransaction: false, //禁用事务
 		NamingStrategy: schema.NamingStrategy{ //命名策略
 			TablePrefix:   t.TablePrefix,
@@ -66,43 +68,27 @@ func (t *DbSql) Connect() *gorm.DB {
 	return db
 }
 
-// DbUntil 用于连接数据库
-func DbUntil(DbUser, DbPwd, DbAddr, DbName, TablePrefix string) *gorm.DB {
-	//定义gorm的日志配置
-	newLogger := newLog()
 
-	databases := DbUser + ":" + DbPwd + "@tcp(" + DbAddr + ")/" + DbName + "?charset=utf8mb4&parseTime=True&loc=Local"
-	//配置数据库
-	db, err := gorm.Open(mysql.Open(databases), &gorm.Config{
-		SkipDefaultTransaction: false, //禁用事务
-		NamingStrategy: schema.NamingStrategy{ //命名策略
-			TablePrefix:   TablePrefix,
-			SingularTable: true, //禁用复数名称
-		},
-		Logger: newLogger,
-	})
-
+func NewSqlConn(pwd,user,port,dbName,host,prefix string) {
+	sqlConn = NewDbSql(user,pwd,host,dbName,port,prefix).Connect()
+	sqlSet,err := sqlConn.DB()
 	if err != nil {
 		logrus.Error("数据库连接错误: ", err.Error())
 	}
-
-	sqlDb, err := db.DB()
-
 	// 设置连接池
-	sqlDb.SetMaxIdleConns(10)
+	sqlSet.SetMaxIdleConns(10)
 
 	//  设置最大打开连接数
-	sqlDb.SetMaxOpenConns(20)
-	if err != nil {
-		logrus.Println("数据库连接失败: ", err.Error())
-	}
-
-	Db = db
-	//创建表
-	CreateTable()
-
+	sqlSet.SetMaxOpenConns(20)
 }
 
+
+func GetSqlConn() *gorm.DB {
+	return sqlConn
+}
+
+// 创建gorm日志设置 
+// TODO 定制化
 func newLog() logger.Interface {
 	newLogger := logger.New(
 		log.New(os.Stdout, "\r\n", log.LstdFlags),
@@ -118,10 +104,10 @@ func newLog() logger.Interface {
 }
 
 // CreateTable 使用自动迁移创建表
-func CreateTable() {
-	err := Db.AutoMigrate(&model.User{})
+func CreateTable(Conn *gorm.DB,models ...interface {}) {
+	err := Conn.AutoMigrate(models)
 	if err != nil {
-		logrus.Println("创建表失败", err.Error())
+		logrus.Println("初始化数据库失败", err.Error())
 		return
 	}
 }

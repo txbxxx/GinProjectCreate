@@ -1,6 +1,6 @@
 /**
  * @Author tanchang
- * @Description //TODO
+ * @Description 用户表模型
  * @Date 2024/7/11 15:56
  * @File:  User
  * @Software: GoLand
