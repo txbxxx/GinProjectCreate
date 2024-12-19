@@ -9,11 +9,22 @@
 package test
 
 import (
-	"Go-WebCreate/utils"
+	"fmt"
 	"testing"
+
+	"Go-WebCreate/utils/token"
+	"Go-WebCreate/utils/DB"
 )
 
 func TestCreateUser(t *testing.T) {
-	md5 := utils.GetMd5("123456")
+	md5 := token.GetMd5("123456")
 	println(md5)
+}
+
+func TestRedis(t *testing.T) {
+	if err := DB.NewRedisConn("127.0.0.1", "", "6379", 0); err != nil {
+		t.Error(err)
+		fmt.Println("连接redis失败")
+	}
+	fmt.Println("连接redis成功")
 }

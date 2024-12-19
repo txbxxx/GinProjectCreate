@@ -1,12 +1,12 @@
 /**
  * @Author tanchang
- * @Description //TODO
+ * @Description 跨域配置中间价
  * @Date 2024/7/11 15:31
  * @File:  Cors
  * @Software: GoLand
  **/
 
-package middleware
+package cors
 
 import (
 	"github.com/gin-contrib/cors"

@@ -10,8 +10,10 @@ package userSvc
 
 import (
 	"Go-WebCreate/model"
-	"Go-WebCreate/utils"
+	"Go-WebCreate/utils/DB"
+	token "Go-WebCreate/utils/token"
 	"errors"
+
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
@@ -26,9 +28,12 @@ type UserLoginService struct {
 // Login 登录service
 func (service *UserLoginService) Login() gin.H {
 	//获取用户信息
-	var data model.User
-	var cunt int64
-	errData := utils.DB.Model(&model.User{}).Where("name = ? and password = ?", service.Name, utils.GetMd5(service.Password)).Count(&cunt).Find(&data).Error
+	var (
+		data model.User
+		cunt int64
+		sql = DB.GetSqlConn()
+	)
+	errData := sql.Model(&model.User{}).Where("name = ? and password = ?", service.Name, token.GetMd5(service.Password)).Count(&cunt).Find(&data).Error
 	if errData != nil {
 		logrus.Error("获取用户信息失败: " + errData.Error())
 		if errors.Is(errData, gorm.ErrRecordNotFound) {
@@ -51,7 +56,7 @@ func (service *UserLoginService) Login() gin.H {
 	}
 
 	//生成token
-	token, errToken := utils.GenerateToken(data.Identity, data.Name, data.IsAdmin)
+	token, errToken := token.GenerateToken(data.Identity, data.Name, data.IsAdmin)
 	if errToken != nil {
 		logrus.Error("生成Token失败: " + errToken.Error())
 		return gin.H{

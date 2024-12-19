@@ -11,7 +11,8 @@ package userSvc
 import (
 	"Go-WebCreate/model"
 	serializes "Go-WebCreate/serialized"
-	"Go-WebCreate/utils"
+	"Go-WebCreate/utils/DB"
+	token "Go-WebCreate/utils/token"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
@@ -27,8 +28,11 @@ type UserRegisterService struct {
 // Register 注册用户service
 func (service *UserRegisterService) Register() gin.H {
 	//查找是否存在用户
-	var userData model.User
-	errSearchUser := utils.DB.Model(&model.User{}).Where("name = ? ", service.Name).Find(&userData).Error
+	var (
+		userData model.User
+		sql = DB.GetSqlConn()
+	)
+	errSearchUser := sql.Model(&model.User{}).Where("name = ? ", service.Name).Find(&userData).Error
 	if errSearchUser != nil {
 		logrus.Error("查找用户失败" + errSearchUser.Error())
 		return gin.H{
@@ -47,13 +51,13 @@ func (service *UserRegisterService) Register() gin.H {
 	//创建用户对象
 	user := &model.User{
 		Name:     service.Name,
-		Password: utils.GetMd5(service.Password),
-		Identity: utils.GenerateUUID(),
+		Password: token.GetMd5(service.Password),
+		Identity: token.GenerateUUID(),
 		Phone:    service.Phone,
 		Mail:     service.Mail,
 	}
 	//插入数据库
-	errInsert := utils.DB.Model(&model.User{}).Create(user).Error
+	errInsert := sql.Model(&model.User{}).Create(user).Error
 	if errInsert != nil {
 		return gin.H{
 			"code": -1,
@@ -62,7 +66,7 @@ func (service *UserRegisterService) Register() gin.H {
 	}
 
 	//生成token
-	token, errToken := utils.GenerateToken(user.Identity, user.Name, user.IsAdmin)
+	token, errToken := token.GenerateToken(user.Identity, user.Name, user.IsAdmin)
 	if errToken != nil {
 		return gin.H{
 			"code": -1,
