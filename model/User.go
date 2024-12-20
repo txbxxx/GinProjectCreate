@@ -20,3 +20,7 @@ type User struct {
 	Mail     string `gorm:"column:mail;varchar(100)" json:"mail"`                     // 电子邮件
 	IsAdmin  int    `gorm:"column:isadmin;type:tinyint(1);default:2" json:"is_admin"` // 是否为管理员1为是2为不是
 }
+
+func (u *User) IsCreate() bool {
+	return true
+}

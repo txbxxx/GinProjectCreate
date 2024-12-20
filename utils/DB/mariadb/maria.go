@@ -9,6 +9,7 @@
 package sql
 
 import (
+	"Go-WebCreate/model"
 	"fmt"
 	"log"
 	"os"
@@ -33,22 +34,20 @@ type DbSql struct {
 }
 
 func (t *DbSql) Connect() *gorm.DB {
-	//定义gorm的日志配置
-	newLogger := newLog()
-
 	connAddr := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", t.DbUser, t.DbPwd, t.DbHost, t.DbPort, t.DbName)
 
 	// databases := t.DbUser + ":" + t.DbPwd + "@tcp(" + t.DbHost + ")/" + t.DbName + "?charset=utf8mb4&parseTime=True&loc=Local"
 	//配置数据库
-	// TODO 定制化
-	db, err := gorm.Open(mysql.Open(connAddr), &gorm.Config{
-		SkipDefaultTransaction: false, //禁用事务
-		NamingStrategy: schema.NamingStrategy{ //命名策略
+	gormConfig := &gorm.Config{
+		SkipDefaultTransaction: false,
+		NamingStrategy: schema.NamingStrategy{
 			TablePrefix:   t.TablePrefix,
-			SingularTable: true, //禁用复数名称
+			SingularTable: true,
 		},
-		Logger: newLogger,
-	})
+		Logger: newLog(),
+	}
+	
+	db, err := gorm.Open(mysql.Open(connAddr), gormConfig)
 
 	if err != nil {
 		logrus.Error("数据库连接错误: ", err.Error())
@@ -104,7 +103,7 @@ func newLog() logger.Interface {
 }
 
 // CreateTable 使用自动迁移创建表
-func CreateTable(Conn *gorm.DB, models ...interface{}) error {
+func CreateTable(Conn *gorm.DB, models ...model.CreateTable) error {
 	if Conn == nil {
 		logrus.Errorln("数据库连接为空")
 		return fmt.Errorf("数据库连接为空")
@@ -113,6 +112,10 @@ func CreateTable(Conn *gorm.DB, models ...interface{}) error {
 		if model == nil {
 			logrus.Errorln("model为空")
 			return fmt.Errorf("model为空")
+		}
+		if !model.IsCreate() {
+			logrus.Errorf("model: %v 不需要创建, 请传入正确的模型", model)
+			continue
 		}
 		logrus.Debugln("创建表: ", model)
 		if err := Conn.AutoMigrate(model);err != nil {
