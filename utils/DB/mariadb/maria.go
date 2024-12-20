@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"reflect"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -83,6 +84,11 @@ func NewSqlConn(user, pwd, host, port, dbName, prefix string) error {
 }
 
 func GetSqlConn() *gorm.DB {
+	if sqlConn == nil {
+		logrus.Errorf("请先创建数据库连接")
+		return nil
+	}
+	logrus.Info("获取数据库连接成功")
 	return sqlConn
 }
 
@@ -113,10 +119,13 @@ func CreateTable(Conn *gorm.DB, models ...model.CreateTable) error {
 			logrus.Errorln("model为空")
 			return fmt.Errorf("model为空")
 		}
-		if !model.IsCreate() {
-			logrus.Errorf("model: %v 不需要创建, 请传入正确的模型", model)
+
+		if !model.IsCreate(){
+			name := reflect.ValueOf(model).Elem().Type().Name()
+			logrus.Warningf("model: %s 该model不适合创建, 请传入正确的模型",  name)
 			continue
 		}
+
 		logrus.Debugln("创建表: ", model)
 		if err := Conn.AutoMigrate(model);err != nil {
 			logrus.Errorln("创建表失败: ", err.Error())

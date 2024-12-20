@@ -22,5 +22,5 @@ type User struct {
 }
 
 func (u *User) IsCreate() bool {
-	return true
+	return false
 }
