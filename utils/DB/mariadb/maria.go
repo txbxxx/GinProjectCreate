@@ -9,9 +9,11 @@
 package sql
 
 import (
+	"Go-WebCreate/model"
 	"fmt"
 	"log"
 	"os"
+	"reflect"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -33,22 +35,20 @@ type DbSql struct {
 }
 
 func (t *DbSql) Connect() *gorm.DB {
-	//定义gorm的日志配置
-	newLogger := newLog()
-
 	connAddr := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", t.DbUser, t.DbPwd, t.DbHost, t.DbPort, t.DbName)
 
 	// databases := t.DbUser + ":" + t.DbPwd + "@tcp(" + t.DbHost + ")/" + t.DbName + "?charset=utf8mb4&parseTime=True&loc=Local"
 	//配置数据库
-	// TODO 定制化
-	db, err := gorm.Open(mysql.Open(connAddr), &gorm.Config{
-		SkipDefaultTransaction: false, //禁用事务
-		NamingStrategy: schema.NamingStrategy{ //命名策略
+	gormConfig := &gorm.Config{
+		SkipDefaultTransaction: false,
+		NamingStrategy: schema.NamingStrategy{
 			TablePrefix:   t.TablePrefix,
-			SingularTable: true, //禁用复数名称
+			SingularTable: true,
 		},
-		Logger: newLogger,
-	})
+		Logger: newLog(),
+	}
+	
+	db, err := gorm.Open(mysql.Open(connAddr), gormConfig)
 
 	if err != nil {
 		logrus.Error("数据库连接错误: ", err.Error())
@@ -84,6 +84,11 @@ func NewSqlConn(user, pwd, host, port, dbName, prefix string) error {
 }
 
 func GetSqlConn() *gorm.DB {
+	if sqlConn == nil {
+		logrus.Errorf("请先创建数据库连接")
+		return nil
+	}
+	logrus.Info("获取数据库连接成功")
 	return sqlConn
 }
 
@@ -104,7 +109,7 @@ func newLog() logger.Interface {
 }
 
 // CreateTable 使用自动迁移创建表
-func CreateTable(Conn *gorm.DB, models ...interface{}) error {
+func CreateTable(Conn *gorm.DB, models ...model.CreateTable) error {
 	if Conn == nil {
 		logrus.Errorln("数据库连接为空")
 		return fmt.Errorf("数据库连接为空")
@@ -114,6 +119,13 @@ func CreateTable(Conn *gorm.DB, models ...interface{}) error {
 			logrus.Errorln("model为空")
 			return fmt.Errorf("model为空")
 		}
+
+		if !model.IsCreate(){
+			name := reflect.ValueOf(model).Elem().Type().Name()
+			logrus.Warningf("model: %s 该model不适合创建, 请传入正确的模型",  name)
+			continue
+		}
+
 		logrus.Debugln("创建表: ", model)
 		if err := Conn.AutoMigrate(model);err != nil {
 			logrus.Errorln("创建表失败: ", err.Error())

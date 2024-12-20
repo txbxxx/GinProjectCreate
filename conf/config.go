@@ -44,5 +44,5 @@ func Init() {
 
 	// 初始化数据库
 	conn := sqlConn.GetSqlConn()
-	sqlConn.CreateTable(conn, model.User{})
+	sqlConn.CreateTable(conn, &model.User{})
 }
