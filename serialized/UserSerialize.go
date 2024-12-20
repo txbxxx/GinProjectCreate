@@ -1,3 +1,11 @@
+/**
+ * @Author tanchang
+ * @Description 鉴权模块
+ * @Date 2024/7/11 20:09
+ * @File:  Token
+ * @Software: GoLand
+ **/
+
 package serializes
 
 import "Go-WebCreate/model"
