@@ -23,6 +23,8 @@ type UserReq struct {
 	Mail     string `form:"mail" json:"mail" binding:"required,email"`
 }
 
+// TODO 登录注册验证器
+
 // Login 登录
 func Login(c *gin.Context) { 
 	userReq := &UserReq{}
@@ -31,7 +33,11 @@ func Login(c *gin.Context) {
 		login := svc.Login(userReq.Name, userReq.Password)
 		c.JSON(200, login)
 	} else {
-		c.AbortWithStatusJSON(200, gin.H{"err": err})
+		c.AbortWithStatusJSON(400,
+			gin.H{
+				"err": err.Error(),
+				"msg": "请正确填写信息",
+			})
 	}
 }
 
@@ -43,7 +49,11 @@ func Register(c *gin.Context) {
 		register := svc.Register(userReq.Name, userReq.Password, userReq.Phone, userReq.Mail)
 		c.JSON(200, register)
 	} else {
-		c.AbortWithStatusJSON(200, gin.H{"err": err})
+		c.AbortWithStatusJSON(400, 
+			gin.H{
+			"err": err.Error(),
+			"msg": "请正确填写信息",
+			})
 	}
 }
 
