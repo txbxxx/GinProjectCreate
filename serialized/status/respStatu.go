@@ -14,7 +14,27 @@ package status
 
 const (
 	// 成功
-	Success = iota
+	Success = iota + 1
+)
+
+const (
+    // 用户相关错误码
+    UserSuccess = iota + 2000
+    UserNotFound 
+    UserPasswordError 
+    UserAlreadyExists 
+    UserRegisterError
+    UserLoginError 
+    TokenGenerateError 
 )
 
 
+const (
+    // 数据库相关错误码
+    DBSuccess =  iota + 3000
+    DBConnectionError 
+    DBQueryError
+    DBInsertError 
+    DBUpdateError 
+    DBDeleteError 
+)

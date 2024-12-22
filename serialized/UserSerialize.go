@@ -10,37 +10,50 @@ package serializes
 
 import "Go-WebCreate/model"
 
-type UserSerialize struct {
+type UserSerializeBase struct {
 	Identity  string `json:"identity"`
 	Name      string `json:"name"`
-	Phone     string `json:"phone"`
-	IsAdmin   int    `json:"is_admin"`
-	Mail      string `json:"mail"`
-	CreatedAt int64  `json:"created_at"`
+	Phone     string `json:"phone,omitempty"`
+	IsAdmin   int    `json:"is_admin,omitempty"`
+	Mail      string `json:"mail,omitempty"`
+	CreatedAt int64  `json:"created_at,omitempty"`
+}
+
+type UserLoginSerialize struct {
+	IsAdmin int    `json:"is_admin"`
+	Id      string `json:"id"`
+	Token   string `json:"token"`
 }
 
 // UserSerializeList 用户序列化列表
-func UserSerializeList(users []model.User) []UserSerialize {
-	var userSerializeList []UserSerialize
+func NewUserSerializeList(users []model.User) []UserSerializeBase {
+	var userSerializeList []UserSerializeBase
 	for _, user := range users {
-		userSerializeList = append(userSerializeList, UserSerialize{
+		userSerializeList = append(userSerializeList, UserSerializeBase{
 			Identity:  user.Identity,
 			Name:      user.Name,
 			Phone:     user.Phone,
 			Mail:      user.Mail,
-			CreatedAt: user.CreatedAt.Unix(),
 		})
 	}
 	return userSerializeList
 }
 
 // UserSerializeSingle 单个用户序列化
-func UserSerializeSingle(user model.User) UserSerialize {
-	return UserSerialize{
+func NewUserSerializeSingle(user model.User) UserSerializeBase {
+	return UserSerializeBase{
 		Identity:  user.Identity,
 		Name:      user.Name,
 		Phone:     user.Phone,
 		Mail:      user.Mail,
-		CreatedAt: user.CreatedAt.Unix(),
+	}
+}
+
+
+func NewUserLoginSerialize (user model.User,token string) UserLoginSerialize {
+	return UserLoginSerialize{
+		IsAdmin: user.IsAdmin,
+		Id:      user.Identity,
+		Token:   token,
 	}
 }
