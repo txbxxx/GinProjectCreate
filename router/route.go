@@ -18,7 +18,7 @@ import (
 func Router() *gin.Engine {
 	httpServer := gin.Default()
 	//跨域
-	httpServer.Use(cors.Cors())
+	httpServer.Use(cors.Cors(),gin.Recovery(),gin.Logger())
 
 	user := httpServer.Group("/user")
 	{
