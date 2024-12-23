@@ -15,6 +15,7 @@ import (
 	"Go-WebCreate/serialized/status"
 	DB "Go-WebCreate/utils/DB/mariadb"
 	token "Go-WebCreate/utils/token"
+	"Go-WebCreate/utils/log"
 	"errors"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
@@ -47,7 +48,7 @@ func (t *UserService) Login(u,pwd string) *resp.Resp {
 	//生成token
 	token, errToken := token.GenerateToken(data.Identity, data.Name, data.IsAdmin)
 	if errToken != nil {
-		logrus.Error("生成Token失败: " + errToken.Error())
+		log.Errorln("生成Token失败: " + errToken.Error())
 		return resp.NewErrorResp(status.TokenGenerateError, "生成Token失败")
 	}
 
@@ -96,7 +97,6 @@ func (t *UserService) Register(u,pwd,phone,mail string) *resp.Resp {
 	if errToken != nil {
 		return resp.NewErrorResp(status.TokenGenerateError, "生成Token失败")
 	}
-
 	return resp.NewSuccessResp(status.UserSuccess, "注册成功", serializes.NewUserSerializeSingle(*user),tokenAuth)
 }
 
