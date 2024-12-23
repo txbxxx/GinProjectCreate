@@ -14,11 +14,12 @@ import (
 	"strconv"
 
 	"Go-WebCreate/model"
+
 	"github.com/joho/godotenv"
-	"github.com/sirupsen/logrus"
 
 	sqlConn "Go-WebCreate/utils/DB/mariadb"
 	redisConn "Go-WebCreate/utils/DB/redis"
+	"Go-WebCreate/utils/log"
 )
 
 func Init() {
@@ -27,10 +28,8 @@ func Init() {
 		fmt.Println("读取配置文件环境失败" + err.Error())
 	}
 
-	//logrus配置
-	logLevel, _ := strconv.Atoi(os.Getenv("LOG_LEVEL"))
-	logrus.SetLevel(logrus.Level(logLevel))
-	logrus.SetReportCaller(true)
+	//初始化日志
+	log.NewProjectLog()
 
 	//连接数据库
 	// utils.DBUntil(os.Getenv("DB_USER"), os.Getenv("DB_PWD"), os.Getenv("DB_ADDR"), os.Getenv("DB_NAME"), os.Getenv("TABLE_NAME"))

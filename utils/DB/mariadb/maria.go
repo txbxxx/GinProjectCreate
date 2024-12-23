@@ -10,10 +10,12 @@ package sql
 
 import (
 	"Go-WebCreate/model"
+	logg "Go-WebCreate/utils/log"
 	"fmt"
 	"log"
 	"os"
 	"reflect"
+	"sync"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -23,7 +25,10 @@ import (
 	"gorm.io/gorm/schema"
 )
 
-var sqlConn *gorm.DB
+var (
+	sqlConn *gorm.DB
+	dbOnce  sync.Once
+)
 
 type DbSql struct {
 	DbPwd       string
@@ -51,7 +56,7 @@ func (t *DbSql) Connect() *gorm.DB {
 	db, err := gorm.Open(mysql.Open(connAddr), gormConfig)
 
 	if err != nil {
-		logrus.Error("数据库连接错误: ", err.Error())
+		logg.Errorln("数据库连接错误: ", err.Error())
 		return nil
 	}
 	return db
@@ -69,10 +74,12 @@ func NewDbSql(DbUser, DbPwd, DbHost, DbName, DbPort, TablePrefix string) *DbSql 
 }
 
 func NewSqlConn(user, pwd, host, port, dbName, prefix string) error {
-	sqlConn = NewDbSql(user, pwd, host, dbName, port, prefix).Connect()
+	dbOnce.Do(func ()  {
+		sqlConn = NewDbSql(user, pwd, host, dbName, port, prefix).Connect()
+	})
 	sqlSet, err := sqlConn.DB()
 	if err != nil {
-		logrus.Error("数据库连接错误: ", err.Error())
+		logg.Errorln("数据库连接错误: ", err.Error())
 		return err
 	}
 	// 设置连接池
@@ -85,10 +92,10 @@ func NewSqlConn(user, pwd, host, port, dbName, prefix string) error {
 
 func GetSqlConn() *gorm.DB {
 	if sqlConn == nil {
-		logrus.Errorf("请先创建数据库连接")
+		logg.Errorln("请先创建数据库连接")
 		return nil
 	}
-	logrus.Info("获取数据库连接成功")
+	logg.Infoln("获取数据库连接成功")
 	return sqlConn
 }
 
@@ -111,18 +118,18 @@ func newLog() logger.Interface {
 // CreateTable 使用自动迁移创建表
 func CreateTable(Conn *gorm.DB, models ...model.CreateTable) error {
 	if Conn == nil {
-		logrus.Errorln("数据库连接为空")
+		logg.Errorln("数据库连接为空")
 		return fmt.Errorf("数据库连接为空")
 	}
 	for _, model := range models {
 		if model == nil {
-			logrus.Errorln("model为空")
+			logg.Errorln("model为空")
 			return fmt.Errorf("model为空")
 		}
 
 		if !model.IsCreate(){
 			name := reflect.ValueOf(model).Elem().Type().Name()
-			logrus.Warningf("model: %s 该model不适合创建, 请传入正确的模型",  name)
+			logg.Warningf("model: %s 该model不适合创建, 请传入正确的模型",  name)
 			continue
 		}
 
